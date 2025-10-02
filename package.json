@@ -1,5 +1,5 @@
 {
-  "name": "my-first-extension",
+  "name": "gemini-ida-extentions",
   "version": "1.0.0",
   "type": "module",
   "description": "MCP server extension",
