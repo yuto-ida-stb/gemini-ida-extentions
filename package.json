@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "description": "MCP server extension",
-  "main": "example.js",
   "scripts": {
-    "build": "tsc"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
@@ -13,6 +12,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
+    "tsx": "^4.20.6",
     "typescript": "^5.7.2"
   }
 }

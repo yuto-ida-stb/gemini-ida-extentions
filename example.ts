@@ -20,10 +20,17 @@ server.registerTool(
     inputSchema: z.object({}).shape,
   },
   async () => {
+    interface Post {
+      userId: number;
+      id: number;
+      title: string;
+      body: string;
+    }
+
     const apiResponse = await fetch(
       'https://jsonplaceholder.typicode.com/posts',
     );
-    const posts = await apiResponse.json();
+    const posts = await apiResponse.json() as Post[];
     const response = { posts: posts.slice(0, 5) };
     return {
       content: [
@@ -54,6 +61,54 @@ server.registerPrompt(
       },
     ],
   }),
+);
+
+server.registerTool(
+  'morning_icebreaker',
+  {
+    description: '朝会で使えるアイスブレイクネタを提案します',
+    inputSchema: z.object({}).shape,
+  },
+  async () => {
+    const icebreakers = [
+      '朝食はパン派？ごはん派？',
+      '好きな季節とその理由は？',
+      '最近ハマっているものは何ですか？',
+      'もし一つだけ超能力が使えるなら何を選びますか？',
+      '無人島に3つだけ持っていけるとしたら？',
+      '今までで一番おいしかった食べ物は？',
+      '座右の銘や好きな言葉は？',
+      '休日の理想の過ごし方は？',
+      '今までで一番笑った出来事は？',
+      '行ってみたい国や場所は？',
+      'もし宝くじが当たったら何をしますか？',
+      '最近感動したことは？',
+      '子供の頃の夢は何でしたか？',
+      '好きな映画やドラマのジャンルは？',
+      '今一番欲しいものは？',
+      '得意料理や好きな食べ物は？',
+      'ストレス解消法は？',
+      '最近買ってよかったものは？',
+      'もしタイムマシンがあったら過去と未来どっちに行く？',
+      '人生で一番影響を受けた人は？',
+      '今までで一番頑張ったことは？',
+      '理想の休日は？',
+      '最近始めたことや挑戦していることは？',
+      '自分の長所を一つ教えてください',
+      '好きな音楽のジャンルやアーティストは？',
+    ];
+
+    const selectedItem = icebreakers[Math.floor(Math.random() * icebreakers.length)];
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: selectedItem,
+        },
+      ],
+    };
+  },
 );
 
 const transport = new StdioServerTransport();
