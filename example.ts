@@ -103,7 +103,7 @@ Atlassian MCPツールを使用してUDMプロジェクトから優先度の高�
 2. mcp__atlassian__searchJiraIssuesUsingJqlを使用して以下のJQLクエリで課題を検索:
    JQL: ${jqlQuery}
    fields: ['key', 'summary', 'description', 'priority', 'status', 'created', 'issuetype', 'updated']
-   maxResults: 20
+   maxResults: 100
 
 3. 取得した全課題を以下の多角的な基準で総合的に評価・スコアリング:
 
