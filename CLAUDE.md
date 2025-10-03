@@ -1,0 +1,1 @@
+- WebSeach禁止、googleSearchを使う
