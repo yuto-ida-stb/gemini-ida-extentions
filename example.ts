@@ -91,90 +91,45 @@ server.registerTool(
     inputSchema: z.object({}).shape,
   },
   async () => {
-    try {
-      // UDMプロジェクトの課題を優先度順に取得
-      // 説明、ステータス、優先度、作成日などのフィールドを含める
-      // ステータスが「完了」「Done」のものは除外
-      const jqlQuery = 'project = UDM AND status != Done AND status != 完了 ORDER BY priority DESC, created DESC';
+    // このツールはClaudeに対して、Atlassian MCPツールを使用して
+    // UDMプロジェクトの課題を取得するよう指示を返します
+    const jqlQuery = 'project = UDM AND status != Done AND status != 完了 ORDER BY priority DESC, created DESC';
 
-      // Note: 実際の実装では以下のようにAtlassian MCP Serverを呼び出す必要があります
-      // const result = await callAtlassianMCP('searchJiraIssuesUsingJql', {
-      //   cloudId: 'stanby-inc',
-      //   jql: jqlQuery,
-      //   fields: ['key', 'summary', 'description', 'priority', 'status', 'created', 'issuetype'],
-      //   maxResults: 10
-      // });
-      //
-      // 取得した課題から上位3つを選定し、以下の形式で返す:
-      // {
-      //   top_agendas: [
-      //     {
-      //       key: 'UDM-66',
-      //       summary: '課題のサマリー',
-      //       description: '課題の説明',
-      //       priority: 'Highest',
-      //       status: 'To Do',
-      //       reason: '選定理由: 優先度が最高で、説明から緊急性が高いことが分かる...'
-      //     },
-      //     ...
-      //   ]
-      // }
+    const instructions = `
+Atlassian MCPツールを使用してUDMプロジェクトから優先度の高いアジェンダを取得してください。
 
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              instruction: 'このツールを完全に動作させるには、Atlassian MCPサーバーとの統合が必要です。',
-              implementation_guide: {
-                jql_query: jqlQuery,
-                required_fields: ['key', 'summary', 'description', 'priority', 'status', 'created', 'issuetype'],
-                note: '課題キー(例: UDM-66)は必須フィールドとして取得します',
-                logic: [
-                  '1. ステータスが「完了」「Done」の課題を除外（JQLクエリで除外済み）',
-                  '2. 課題キー(key)、サマリー、説明、優先度などを取得',
-                  '3. 優先度(priority)が高い順に課題をソート',
-                  '4. 説明フィールド(description)の内容を分析',
-                  '5. 以下の基準で総合評価:',
-                  '   - 優先度の高さ',
-                  '   - 説明の具体性と緊急性',
-                  '   - ステータス（未着手や進行中を優先、完了は除外）',
-                  '   - 作成日（最近のものを優先）',
-                  '6. 上位3つを選定し、課題キーと共に選定理由を説明',
-                ],
-                output_format: {
-                  top_agendas: [
-                    {
-                      key: 'UDM-XX (必須)',
-                      summary: '課題のサマリー',
-                      description: '課題の説明',
-                      priority: '優先度',
-                      status: 'ステータス',
-                      reason: '選定理由の論理的説明',
-                    },
-                  ],
-                },
-              },
-              next_steps: [
-                '1. Atlassian MCP Serverの認証設定を完了',
-                '2. cloudIdの取得（stanby-inc.atlassian.netの場合）',
-                '3. mcp__atlassian__searchJiraIssuesUsingJqlツールを使用した実装',
-              ],
-            }, null, 2),
-          },
-        ],
-      };
-    } catch (error) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `エラーが発生しました: ${error}`,
-          },
-        ],
-        isError: true,
-      };
-    }
+【手順】
+1. mcp__atlassian__getAccessibleAtlassianResourcesを使用してcloudIdを取得
+2. mcp__atlassian__searchJiraIssuesUsingJqlを使用して以下のJQLクエリで課題を検索:
+   JQL: ${jqlQuery}
+   fields: ['key', 'summary', 'description', 'priority', 'status', 'created', 'issuetype']
+   maxResults: 10
+
+3. 取得した課題から上位3つを以下の基準で選定:
+   - 優先度(priority)の高さ
+   - 説明(description)の具体性と緊急性
+   - ステータス（未着手や進行中を優先、完了は除外済み）
+   - 作成日（最近のものを優先）
+
+4. 選定した3つのアジェンダについて、以下の情報を含めて報告:
+   - 課題キー (例: UDM-66) ※必須
+   - サマリー
+   - 説明の要約
+   - 優先度
+   - ステータス
+   - 選定理由（論理的に説明）
+
+今すぐ上記の手順を実行してください。
+`;
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: instructions,
+        },
+      ],
+    };
   },
 );
 
